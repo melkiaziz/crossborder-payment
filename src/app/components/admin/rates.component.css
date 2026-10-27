@@ -1,0 +1,41 @@
+.rate-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 16px;
+}
+
+.rate-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+}
+
+.display-3 {
+  font-size: 2.8rem;
+  font-weight: 600;
+}
+
+.badge {
+  padding: 6px 12px;
+  font-weight: 500;
+}
+
+.timeline-icon {
+  width: 32px;
+  text-align: center;
+}
+
+.timeline-icon i {
+  font-size: 1.2rem;
+}
+
+canvas {
+  max-height: 300px;
+}
+
+.card {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.card-header {
+  background: transparent;
+}

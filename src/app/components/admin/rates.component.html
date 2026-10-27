@@ -1,0 +1,98 @@
+<div class="container">
+  <div class="cb-hero-banner">
+    <img src="/assets/images/hero-fintech.png" alt="" aria-hidden="true" />
+    <div class="hero-overlay">
+      <h2>💱 Taux de change</h2>
+      <p>Taux en temps réel provenant de la blockchain Ethereum</p>
+    </div>
+  </div>
+
+  <div class="cb-page-header">
+    <div>
+      <h2>Cours actuels</h2>
+      <p class="subtitle">Mise à jour automatique toutes les 30 secondes</p>
+    </div>
+    <div class="cb-page-actions">
+      <span class="badge bg-success">✅ Taux automatiques</span>
+      <span class="cb-update-time">MAJ: {{ lastUpdate || '--' }}</span>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-5">
+    <div class="col-md-6">
+      <div class="cb-card rate-card h-100">
+        <div class="cb-card-body p-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <span class="badge bg-primary mb-2">EUR → TND</span>
+              <div class="display-3 fw-bold text-primary">{{ currentRates.eurToTnd | number:'1.4-4' }}</div>
+              <div class="mt-2">
+                <span class="badge" [ngClass]="eurVariation >= 0 ? 'bg-success' : 'bg-danger'">
+                  {{ eurVariation >= 0 ? '▲' : '▼' }} {{ eurVariation | number:'1.2-2' }}%
+                </span>
+                <span class="text-muted ms-2">vs hier</span>
+              </div>
+            </div>
+            <div class="text-end">
+              <div class="small text-muted">1 Euro</div>
+              <div class="fw-bold fs-4">{{ currentRates.eurToTnd | number:'1.4-4' }} TND</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="cb-card rate-card h-100">
+        <div class="cb-card-body p-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <span class="badge bg-success mb-2">USD → TND</span>
+              <div class="display-3 fw-bold text-success">{{ currentRates.usdToTnd | number:'1.4-4' }}</div>
+              <div class="mt-2">
+                <span class="badge" [ngClass]="usdVariation >= 0 ? 'bg-success' : 'bg-danger'">
+                  {{ usdVariation >= 0 ? '▲' : '▼' }} {{ usdVariation | number:'1.2-2' }}%
+                </span>
+                <span class="text-muted ms-2">vs hier</span>
+              </div>
+            </div>
+            <div class="text-end">
+              <div class="small text-muted">1 Dollar US</div>
+              <div class="fw-bold fs-4">{{ currentRates.usdToTnd | number:'1.4-4' }} TND</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cb-chart-card mb-4">
+    <div class="card-header">📈 Évolution des taux (30 derniers jours)</div>
+    <div class="card-body">
+      <canvas baseChart [data]="evolutionData" [type]="'line'" [options]="lineChartOptions"></canvas>
+    </div>
+  </div>
+
+  <div class="cb-chart-card mb-4">
+    <div class="card-header">📊 Comparaison actuelle</div>
+    <div class="card-body">
+      <canvas baseChart [data]="comparisonData" [type]="'bar'" [options]="barChartOptions"></canvas>
+    </div>
+  </div>
+
+  <div class="cb-card">
+    <div class="cb-card-header">⛓️ Dernières mises à jour blockchain</div>
+    <div class="cb-card-body">
+      <div *ngFor="let update of updateHistory.slice(0,5)" class="d-flex align-items-start mb-3 pb-3 border-bottom">
+        <div class="me-3 fs-5">✅</div>
+        <div>
+          <div class="fw-bold">{{ update.currency }}/TND</div>
+          <div>Nouveau taux: <strong>{{ update.rate | number:'1.4-4' }}</strong></div>
+          <div class="small text-muted">{{ update.created_at | date:'dd/MM/yyyy HH:mm' }}</div>
+        </div>
+      </div>
+      <div *ngIf="updateHistory.length === 0" class="text-center text-muted py-4">
+        Aucune mise à jour enregistrée
+      </div>
+    </div>
+  </div>
+</div>

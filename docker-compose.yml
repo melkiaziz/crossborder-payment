@@ -1,0 +1,108 @@
+name: crossborder
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-1234}
+      POSTGRES_DB: crossborder-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d crossborder-db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  blockchain:
+    build:
+      context: .
+      dockerfile: docker/blockchain/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./blockchain2:/app/blockchain2
+      - blockchain2_node_modules:/app/blockchain2/node_modules
+    working_dir: /app/blockchain2
+    command: ["npx", "hardhat", "node", "--hostname", "0.0.0.0"]
+
+  blockchain-deploy:
+    build:
+      context: .
+      dockerfile: docker/blockchain/Dockerfile
+    depends_on:
+      blockchain:
+        condition: service_started
+    environment:
+      HARDHAT_RPC_URL: http://blockchain:8545
+      DEPLOY_OUTPUT_FILE: /shared/contract.env
+      RPC_URL: http://blockchain:8545
+    volumes:
+      - ./blockchain2:/app/blockchain2
+      - blockchain2_node_modules:/app/blockchain2/node_modules
+      - ./docker/scripts:/docker/scripts:ro
+      - blockchain_shared:/shared
+    working_dir: /app/blockchain2
+    entrypoint: ["/bin/sh", "/docker/scripts/deploy-contract.sh"]
+    restart: "no"
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      blockchain:
+        condition: service_started
+      blockchain-deploy:
+        condition: service_completed_successfully
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      DB_HOST: postgres
+      RPC_WS_URL: ws://blockchain:8545
+      RPC_HTTP_URL: http://blockchain:8545
+      PORT: 3000
+    volumes:
+      - ./backend:/app/backend
+      - backend_node_modules:/app/backend/node_modules
+      - blockchain_shared:/shared
+      - ./docker/scripts:/docker/scripts:ro
+    working_dir: /app/backend
+    entrypoint: ["/bin/sh", "/docker/scripts/backend-entrypoint.sh"]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "4200:4200"
+    volumes:
+      - .:/app
+      - frontend_node_modules:/app/node_modules
+      - frontend_angular_cache:/app/.angular
+      - ./docker/scripts:/docker/scripts:ro
+    working_dir: /app
+    entrypoint: ["/bin/sh", "/docker/scripts/frontend-entrypoint.sh"]
+
+volumes:
+  postgres_data:
+  blockchain2_node_modules:
+  backend_node_modules:
+  frontend_node_modules:
+  frontend_angular_cache:
+  blockchain_shared:

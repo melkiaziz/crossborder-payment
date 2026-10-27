@@ -1,0 +1,9 @@
+**/node_modules
+**/.angular
+**/dist
+**/.git
+**/.vscode
+**/.idea
+**/coverage
+**/*.log
+**/.env.local

@@ -1,0 +1,827 @@
+% rapport.tex
+\documentclass[a4paper,12pt]{report}
+
+% Packages de mise en page
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{newtxtext,newtxmath}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{longtable}
+
+% Marges
+\geometry{
+  top=2.5cm,
+  bottom=2.5cm,
+  left=2.5cm,
+  right=2.5cm
+}
+
+% Interligne
+\setstretch{1.15}
+
+% Titres
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\Large\centering}
+  {\chaptertitlename\ \thechapter}{20pt}{\Large}
+\titleformat{\section}
+  {\normalfont\bfseries\large}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\bfseries}{\thesubsection}{1em}{}
+
+% En-tête / pied de page
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% Figures / tableaux
+\captionsetup{font=small, labelfont=bf}
+
+% Table des matières
+\setcounter{tocdepth}{2}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+  \centering
+  {\Huge\bfseries Rapport de stage \\ Projet de fin d'études \\ [2em]}
+  {\Large\bfseries Plateforme CrossBorder Payment : frontend, backend et blockchain \\ [4em]}
+  {\large Nom de l'étudiant : \underline{\hspace{8cm}} \\ [0.5em]}
+  {\large Encadrant pédagogique : \underline{\hspace{8cm}} \\ [0.5em]}
+  {\large Encadrant entreprise : \underline{\hspace{8cm}} \\ [0.5em]}
+  {\large Date : \today \\ [4em]}
+  \vfill
+  {\large Établissement / Université : \underline{\hspace{8cm}}}
+\end{titlepage}
+
+% Remerciements
+\cleardoublepage
+\thispagestyle{empty}
+\section*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+Je remercie chaleureusement mes encadrants ainsi que l'équipe qui m'a accompagné durant ce projet de fin d'études. Leurs conseils ont permis de structurer le travail, d'identifier la problématique et de valider les choix techniques autour d'Angular, de Node.js et des smart contracts. Je remercie également mes collègues pour leur réactivité lors des phases de test et de correction des anomalies.
+
+\vfill
+
+% Résumé
+\cleardoublepage
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+Ce rapport présente le développement d'une plateforme de paiement transfrontalier nommée CrossBorder Payment. Le projet combine un frontend Angular 21, une API backend Express.js avec PostgreSQL et un smart contract Solidity déployé sur Ethereum local géré avec Hardhat. L'objectif principal est de proposer une solution sécurisée et professionnelle pour les transferts interbancaires, en intégrant la gestion dynamique des taux de change, la conformité AML, la validation des transferts sensibles, le suivi opérationnel et l'export de rapports.
+
+\vfill
+
+% Abstract
+\cleardoublepage
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+This internship report describes the CrossBorder Payment project, which integrates an Angular frontend, a Node.js backend and a Solidity smart contract. The solution aims to streamline international bank transfers through secure blockchain rules, dynamic exchange rates, and a management dashboard with notifications and auditing.
+
+% Table des matières
+\cleardoublepage
+\tableofcontents
+\cleardoublepage
+
+% Introduction générale
+\chapter{Introduction générale}
+\section{Présentation du projet}
+Le projet CrossBorder Payment se positionne comme une solution logicielle de paiement transfrontalier destinée aux institutions financières. Le système vise à automatiser des transferts interbancaires en combinant une interface web, une API métier et un smart contract blockchain. Il cible la réduction des risques, l'amélioration de la transparence et la facilitation de la supervision par la Banque Centrale.
+
+\section{Contexte organisationnel}
+Ce stage s'est déroulé au sein d'une entreprise de technologie financière, dans un service chargé d'innover sur les solutions de paiement. Le département est structuré autour de plusieurs équipes : développement, sécurité, produit et opérations. Le projet a été traité comme un cas d'étude réel, avec des livrables intermédiaires, des démonstrations et une documentation technique.
+
+\section{Contexte technique}
+Le système repose sur une architecture hybride : un frontend Angular 21 en standalone, un backend Node.js/Express, une base de données relationnelle PostgreSQL et un smart contract Solidity. Ce choix permet de tirer parti des forces de chaque technologie : réactivité de l'interface, robustesse du backend, persistance structurée et fiabilité du contrat blockchain.
+
+\section{Problématique}
+La problématique du projet est la suivante : comment concevoir une application de paiement interbancaire capable de garantir la sécurité, la conformité et l'automatisation des règles métier tout en offrant une expérience utilisateur claire et un suivi opérationnel efficace ?
+
+\section{Objectifs du stage}
+Les objectifs du stage sont :
+\begin{itemize}[leftmargin=*,nosep]
+  \item analyser les besoins métier et fonctionnels,
+  \item définir une architecture technique cohérente,
+  \item implémenter un smart contract pour sécuriser les transferts,
+  \item développer un backend capable de centraliser les règles métier,
+  \item concevoir un frontend ergonomique pour les utilisateurs,
+  \item assurer la traçabilité, les alertes et l'export des rapports.
+\end{itemize}
+
+\section{Méthodologie de travail}
+La méthodologie adoptée est inspirée des pratiques agiles. Le projet est organisé en cinq sprints correspondant aux cinq chapitres du rapport. Chaque sprint comprend :
+\begin{itemize}[leftmargin=*,nosep]
+  \item une phase d'analyse et de spécification,
+  \item une phase de conception,
+  \item une phase de développement,
+  \item une phase de validation.
+\end{itemize}
+Des outils de suivi tels qu'un diagramme de Gantt et des réunions de revue ont été utilisés.
+
+\section{Organisation quotidienne}
+La journée type était composée de réunions d'avancement, de développement, de tests et de réunions de revue. Une attention particulière a été portée à la documentation des choix techniques et des évolutions du périmètre.
+
+\section{Cadre théorique}
+Ce projet s'appuie sur plusieurs concepts théoriques :
+\begin{itemize}[leftmargin=*,nosep]
+  \item architecture n-tiers pour isoler la présentation, la logique métier et les données,
+  \item principes REST pour la conception de l'API,
+  \item modèle relationnel pour la persistance des données,
+  \item sécurité applicative basée sur JWT et rôles,
+  \item gouvernance blockchain via smart contract.
+\end{itemize}
+
+\section{Structure du rapport}
+Le rapport est structuré en cinq chapitres correspondant aux sprints, suivis d'une évaluation critique et d'annexes contenant les diagrammes, les extraits de code et la documentation technique.
+
+\chapter{Sprint 1 --- Analyse et conception}
+\section{Étude du marché et analyse des besoins}
+L'analyse du marché a permis d'identifier les contraintes des solutions de paiement existantes : délais variables, frais importants, absence de transparence et difficultés de conformité. Le projet se positionne sur un segment de paiement transfrontalier automatisé, avec une approche centrée sur la transparence et la vérifiabilité.
+
+\section{Cahier des charges fonctionnel}
+Le cahier des charges fonctionnel définit les principales fonctionnalités du système :
+\begin{itemize}[leftmargin=*,nosep]
+  \item gestion des banques et des comptes,
+  \item consultation des taux de change,
+  \item création et suivi des transferts,
+  \item approbation des transferts en attente,
+  \item administration de la blacklist,
+  \item génération de rapports et export PDF.
+\end{itemize}
+Ces fonctionnalités correspondent aux attentes des utilisateurs métier et à la finalité du service.
+
+\section{Cahier des charges non fonctionnel}
+Les exigences non fonctionnelles sont les suivantes :
+\begin{itemize}[leftmargin=*,nosep]
+  \item temps de réponse inférieur à 2 secondes pour les pages critiques,
+  \item sécurisation des données et des communications,
+  \item maintenabilité du code,
+  \item modularité et évolutivité,
+  \item documentation et tests automatisés.
+\end{itemize}
+Ces exigences garantissent une solution durable et professionnelle.
+
+\section{Étude des cas d'utilisation}
+Les cas d'utilisation principaux incluent :
+\begin{itemize}[leftmargin=*,nosep]
+  \item connexion et authentification,
+  \item consultation des informations de banque,
+  \item saisie et validation d'un transfert,
+  \item affichage du tableau de bord,
+  \item administration des paramètres de service.
+\end{itemize}
+Chaque cas d'utilisation a été décrit avec ses acteurs, ses préconditions et ses résultats attendus.
+
+\section{Architecture fonctionnelle et technique}
+Le système est structuré autour de trois couches : frontend, backend et blockchain. Cette architecture permet de séparer les responsabilités :
+\begin{itemize}[leftmargin=*,nosep]
+  \item le frontend gère l'affichage et les interactions utilisateur,
+  \item le backend centralise la logique métier, les règles et la persistance,
+  \item la blockchain gère la confiance et les règles de validation du contrat.
+\end{itemize}
+
+\section{Modélisation UML}
+La modélisation UML a été utilisée pour formaliser les entités et les relations. Les principaux éléments sont :\
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{Bank} représentant une institution bancaire,
+  \item \texttt{Transfer} représentant une opération de paiement,
+  \item \texttt{Transaction} représentant l'historique,
+  \item \texttt{User} représentant les utilisateurs du système.
+\end{itemize}
+Les diagrammes de classes et de cas d'utilisation sont fournis en annexe.
+
+\section{Analyse des risques}
+Une analyse des risques a identifié les points critiques :
+\begin{itemize}[leftmargin=*,nosep]
+  \item risque de non-conformité AML,
+  \item risque d'erreur dans les conversions de devises,
+  \item risque de faille de sécurité sur l'authentification,
+  \item risque de perte de données.
+\end{itemize}
+Des mesures de mitigation ont été proposées, telles que la validation stricte des entrées, l'utilisation de JWT et la journalisation des actions.
+
+\section{Choix technologiques}
+Les choix technologiques ont été motivés par la fiabilité et l'adéquation au projet :
+\begin{itemize}[leftmargin=*,nosep]
+  \item Angular 21 pour une interface moderne,
+  \item Bootstrap 5 pour le responsive design,
+  \item Express.js pour un backend léger,
+  \item PostgreSQL pour la persistance relationnelle,
+  \item Ethers.js pour l'interaction blockchain,
+  \item Hardhat pour les tests et le déploiement de smart contracts.
+\end{itemize}
+
+\section{Planning de travail}
+Le projet a été structuré en cinq sprints, chacun couvrant un domaine fonctionnel précis. Le planning a été ajusté en fonction des retours et des blocages techniques. Le diagramme de Gantt est présenté en annexe pour illustrer les jalons et les livrables.
+
+\section{Conclusion du chapitre}
+Ce premier sprint a permis de poser des bases solides pour le projet. Les exigences métier et techniques sont documentées, l'architecture est validée, et les risques sont identifiés.
+
+\chapter{Sprint 2 --- Smart contracts}
+\section{Objectifs du sprint}
+L'objectif principal du second sprint est de développer un smart contract sécurisé et vérifiable qui supporte la logique de transfert, la gestion des banques, la blacklist, les conversions de devises et l'historisation des transactions.
+
+\section{Architecture blockchain en couches}
+Le chapitre blockchain suit l'architecture en quatre couches présentée dans les documents de projet :
+\begin{itemize}[leftmargin=*,nosep]
+  \item couche 1 : réseau Ethereum local Hardhat pour le développement et Sepolia pour les tests,
+  \item couche 2 : Ethereum Virtual Machine (EVM) pour l'exécution du bytecode,
+  \item couche 3 : smart contract \texttt{CrossBorderPayment.sol} implémentant la logique métier,
+  \item couche 4 : application frontend Angular et backend Node.js communiquant via Ethers.js.
+\end{itemize}
+Cette structure sépare clairement la couche de consensus de la logique métier et de l'interface utilisateur.
+
+\section{Structure du smart contract}
+Le contrat \texttt{CrossBorderPayment.sol} se compose de modules clairement identifiés :
+\begin{itemize}[leftmargin=*,nosep]
+  \item gouvernance (propriétaire de la Banque Centrale),
+  \item registre des banques et des soldes,
+  \item blacklist AML,
+  \item taux de change et frais,
+  \item moteur de transfert,
+  \item gestion des limites quotidiennes,
+  \item état des transferts pendants,
+  \item historique des transactions.
+\end{itemize}
+Ce découpage correspond à la cartographie visuelle du smart contract et facilite la compréhension des responsabilités.
+
+\section{Modèle de données blockchain}
+Les structures principales sont :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{Bank} pour les informations bancaires (nom, pays, devise, solde, statut d'enregistrement),
+  \item \texttt{PendingTransfer} pour les transferts nécessitant approbation,
+  \item \texttt{Transaction} pour l'historique on-chain des opérations,
+  \  
+  \item des mappings pour accéder rapidement aux banques, aux blacklistés et aux limites quotidiennes.
+\end{itemize}
+Ces structures immuables garantissent l'intégrité des données critiques et permettent d'éviter les falsifications.
+
+\section{Gestion des permissions}
+Le contrat implémente le modificateur \texttt{onlyOwner()} afin de restreindre les actions critiques à la Banque Centrale :
+\begin{itemize}[leftmargin=*,nosep]
+  \item enregistrement des banques,
+  \item ajout de solde,
+  \item mise à jour des taux EUR/TND et USD/TND,
+  \item modification du pourcentage de frais,
+  \item ajout et retrait de la blacklist,
+  \item approbation des transferts volumineux.
+\end{itemize}
+Cette distinction des rôles est essentielle à la gouvernance et à la sécurité du système.
+
+\section{Flux de transfert dans le smart contract}
+Le flux de transfert implémenté dans \texttt{transfer()} correspond à la vue schématique présentée en annexe :
+\begin{enumerate}[leftmargin=*,nosep]
+  \item vérification de l'enregistrement de la banque émettrice,
+  \item vérification de l'enregistrement de la banque destinataire,
+  \item vérification de la blacklist pour les deux parties,
+  \item vérification du solde disponible,
+  \item vérification de la limite quotidienne,
+  \item si le montant dépasse \texttt{approvalThreshold}, création d'un transfert en attente,
+  \item sinon exécution immédiate via \texttt{\_executeTransfer()}.
+\end{enumerate}
+
+\section{Traitement des transferts volumineux}
+Les gros transferts sont gérés avec une structure \texttt{PendingTransfer} et un compteur \texttt{pendingCount}. Lorsqu'un transfert est signalé comme "pending", l'événement \texttt{PendingTransferCreated} est émis et le backend enregistre l'opération en base PostgreSQL afin de pouvoir la suivre dans l'interface.
+
+\section{Exécution interne et conversion}
+La fonction interne \texttt{\_executeTransfer()} réalise :
+\begin{itemize}[leftmargin=*,nosep]
+  \item mise à jour de la limite quotidienne par banque,
+  \item déduction du solde émetteur,
+  \item conversion de devise lorsque nécessaire,
+  \item calcul des frais sur le montant converti,
+  \item transfert du montant net vers le destinataire,
+  \item crédit du montant des frais vers le propriétaire du contrat,
+  \item création et stockage d'une transaction historique.
+\end{itemize}
+La conversion repose sur une comparaison de chaînes de caractères hachées pour identifier les paires de devises prises en charge.
+
+\section{Taux de change et frais}
+Le contrat expose les taux \texttt{eurToTndRate} et \texttt{usdToTndRate} en format wei avec \texttt{ether} pour maintenir une précision maximale. Ces taux sont initialisés dans le contrat, mais le backend met à jour leurs valeurs de manière dynamique avec des données externes via ExchangeRate-API. Les frais de transfert sont définis par \texttt{transferFeePercent} et peuvent être ajustés par la Banque Centrale, tout en restant limités à 10\% pour éviter tout abus. Cette organisation garantit une logique stable tout en conservant une capacité d'adaptation aux fluctuations du marché.
+
+\section{Blacklist AML}
+La logique AML est simple mais efficace :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{blacklistBank(address)} place une banque sur la liste noire,
+  \item \texttt{removeFromBlacklist(address)} retire une banque de la blacklist,
+  \item la fonction \texttt{transfer()} bloque toute transaction impliquant une adresse blacklistée.
+\end{itemize}
+La blacklist est un outil de conformité essentiel dans le flux de paiement.
+
+\section{Références de fonctions et accès}
+Les fonctions du contrat sont classées par rôle et niveau d'accès :
+\begin{itemize}[leftmargin=*,nosep]
+  \item propriétaire : \texttt{registerBank()}, \texttt{addBalance()}, \texttt{blacklistBank()}, \texttt{removeFromBlacklist()}, \texttt{updateEurRate()}, \texttt{updateUsdRate()}, \texttt{updateTransferFee()}, \texttt{approveTransfer()}.
+  \item banques enregistrées : \texttt{transfer()}.
+  \item fonctions internes : \texttt{\_executeTransfer()}, \texttt{\_updateDailyLimit()}.
+  \item fonctions de consultation : \texttt{getBalance()}, \texttt{getTransactionCount()}.
+\end{itemize}
+Cette classification permet de comprendre rapidement qui peut agir sur chaque fonctionnalité.
+
+\section{Événements et audit}
+Le contrat émet plusieurs événements :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{TransferExecuted} pour un transfert finalisé,
+  \item \texttt{PendingTransferCreated} pour un transfert en attente,
+  \item \texttt{PendingTransferApproved} pour un transfert approuvé,
+  \item \texttt{BalanceAdded} pour l'injection de solde.
+\end{itemize}
+Ces événements servent à alimenter le backend et à assurer la traçabilité des actions critiques.
+
+\section{Tests et validation}
+La suite de tests Hardhat couvre :
+\begin{itemize}[leftmargin=*,nosep]
+  \item l'enregistrement des banques et la protection des accès,
+  \item l'ajout de solde et la vérification des soldes,
+  \item la gestion de la blacklist,
+  \item la création de transferts jusqu'à l'activation de l'état "pending",
+  \item l'approbation d'un transfert en attente et l'émission des événements,
+  \item les conversions de devise et le calcul des frais.
+\end{itemize}
+Cette couverture garantit la résistance du contrat aux principaux scénarios métier.
+
+\section{Limites et améliorations possibles}
+Le contrat peut être étendu avec des évolutions telles que :
+\begin{itemize}[leftmargin=*,nosep]
+  \item support de nouvelles devises et paires de conversion,
+  \item auditables multi-signatures pour l'approbation des transferts,
+  \item quota dynamique de frais suivant le type de transaction,
+  \  
+  \item intégration d'un mécanisme de suspension d'urgence (circuit breaker).
+\end{itemize}
+
+\section{Conclusion du chapitre}
+Le smart contract constitue le cœur de confiance du projet. Il encadre les règles de transfert, la gestion AML et les conversions de devises, tout en exposant des événements qui permettent au backend de construire un historique cohérent.
+
+\chapter{Sprint 3 --- Backend API}
+\section{Objectifs du sprint}
+Ce sprint vise à développer l'API backend qui centralise la logique métier, assure la sécurité, gère la persistance et orchestre la communication entre le frontend, la base de données et la blockchain.
+
+\section{Architecture du backend}
+L'architecture backend est constituée de plusieurs couches :
+\begin{itemize}[leftmargin=*,nosep]
+  \item couche HTTP Express pour l'API REST,
+  \item services métiers de gestion des taux, des emails et des transferts,
+  \item persistance PostgreSQL pour les états métiers et l'historique,
+  \item intégration blockchain via Ethers.js et smart contract.
+\end{itemize}
+Cette architecture facilite la modularité, la maintenabilité et la séparation des responsabilités.
+
+\section{Fonctionnalité de base du backend}
+Le backend fournit des fonctionnalités essentielles :
+\begin{itemize}[leftmargin=*,nosep]
+  \item enregistrement sécurisé des banques,
+  \item gestion des soldes et des transferts,
+  \item approbation des transferts pendants,
+  \item consultation et mise à jour des taux de change,
+  \item gestion de la blacklist AML,
+  \item suivi de la performance via des KPI.
+\end{itemize}
+
+\section{Principales routes API}
+Les routes exposées par le backend sont organisées par domaine fonctionnel :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{/api/auth} pour l'authentification,
+  \item \texttt{/api/banks} pour la gestion des banques,
+  \item \texttt{/api/transfers} pour les transferts,
+  \item \texttt{/api/rates} pour les taux de change,
+  \item \texttt{/api/blacklist} pour la conformité AML,
+  \item \texttt{/api/dashboard} pour les statistiques,
+  \item \texttt{/api/db} pour les extractions de données internes.
+\end{itemize}
+
+\subsection{Tableau des endpoints}
+\begin{longtable}{p{4cm}p{4cm}p{7cm}}
+\toprule
+Endpoint & Méthode & Fonctionnalité \\
+\midrule
+\endfirsthead
+\toprule
+Endpoint & Méthode & Fonctionnalité \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\texttt{/api/auth/login} & POST & Authentification utilisateur \\
+\texttt{/api/auth/register} & POST & Création d'un compte employé \\
+\texttt{/api/auth/forgot-password} & POST & Demande de réinitialisation de mot de passe \\
+\texttt{/api/auth/reset-password} & POST & Réinitialisation du mot de passe \\
+\texttt{/api/auth/verify-email} & GET & Vérification d'email \\
+\texttt{/api/auth/me} & GET & Informations utilisateur connecté \\
+\texttt{/api/banks/register} & POST & Enregistrement d'une nouvelle banque \\
+\texttt{/api/banks/:address/balance} & POST & Ajout de solde à une banque \\
+\texttt{/api/banks/:address/balance} & GET & Consultation du solde d'une banque \\
+\texttt{/api/transfers} & POST & Création d'un transfert \\
+\texttt{/api/transfers/pending} & GET & Liste des transferts en attente sur la blockchain \\
+\texttt{/api/transfers/approve/:id} & POST & Validation d'un transfert en attente \\
+\texttt{/api/blacklist/:address} & GET & Vérification de l'état blacklist \\
+\texttt{/api/blacklist/:address} & POST & Ajout à la blacklist \\
+\texttt{/api/blacklist/:address} & DELETE & Retrait de la blacklist \\
+\texttt{/api/rates/current} & GET & Consultation des taux blockchain actuels \\
+\texttt{/api/rates/fetch} & GET & Récupération des taux externes depuis l'API \\
+\texttt{/api/rates/update} & POST & Mise à jour forcée des taux sur la blockchain \\
+\texttt{/api/rates/status} & GET & Statut du service de taux \\
+\texttt{/api/rates/eur} & PUT & Mise à jour manuelle du taux EUR/TND \\
+\texttt{/api/rates/usd} & PUT & Mise à jour manuelle du taux USD/TND \\
+\texttt{/api/rates/sync} & POST & Synchronisation automatique des taux \\
+\texttt{/api/fees} & PUT & Mise à jour du pourcentage de frais \\
+\texttt{/api/rates} & GET & Consultation des taux dynamiques \\
+\texttt{/api/rates/history} & GET & Historique des taux \\
+\texttt{/api/rates/alerts} & POST & Création d'une alerte de taux \\
+\texttt{/api/rates/alerts} & GET & Consultation des alertes de taux \\
+\texttt{/api/dashboard/kpis} & GET & Indicateurs clés de performance \\
+\texttt{/api/dashboard/transactions-evolution} & GET & Évolution des transactions \\
+\texttt{/api/dashboard/currency-distribution} & GET & Répartition par devise \\
+\texttt{/api/dashboard/country-distribution} & GET & Répartition par pays \\
+\texttt{/api/dashboard/top-banks} & GET & Classement des banques \\
+\texttt{/api/dashboard/recent-activity} & GET & Activité récente \\
+\texttt{/api/db/pending} & GET & Extraction des transferts pendants \\
+\texttt{/api/db/transactions} & GET & Extraction de l'historique des transactions \\
+\texttt{/api/db/banks} & GET & Extraction de la table des banques \\
+\end{longtable}
+
+\section{Base de données PostgreSQL}
+La base PostgreSQL implémente les tables suivantes :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{banks} pour les institutions financières,
+  \item \texttt{transactions} pour l'historique des transferts enregistrés,
+  \item \texttt{pending\_transfers} pour les transferts en attente d'approbation,
+  \item \texttt{blacklist\_history} pour l'audit des actions de blacklist,
+  \item \texttt{employees} pour l'authentification des utilisateurs,
+  \item \texttt{rate\_history} pour l'historique des taux Forex,
+  \item \texttt{rate\_alerts} et \texttt{rate\_alert\_history} pour la gestion des alertes de taux.
+\end{itemize}
+
+\subsection{Description des tables clés}
+\paragraph{banks}
+La table \texttt{banks} enregistre :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{wallet\_address} : adresse blockchain unique,
+  \item \texttt{name} : nom de la banque,
+  \item \texttt{country} : pays,
+  \item \texttt{currency} : devise supportée,
+  \item \texttt{tx\_hash} : hash de la transaction smart contract,
+  \item \texttt{balance} : solde stocké en base,
+  \item \texttt{created\_at} : date d'enregistrement.
+\end{itemize}
+
+\paragraph{transactions}
+La table \texttt{transactions} trace les transferts finalisés et contient :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{from\_bank} et \texttt{to\_bank},
+  \item \texttt{original\_amount} et \texttt{converted\_amount},
+  \item \texttt{fee},
+  \item \texttt{tx\_hash},
+  \item \texttt{block\_number},
+  \item \texttt{created\_at}.
+\end{itemize}
+
+\paragraph{pending\_transfers}
+Cette table stocke les transferts en attente de validation, avec :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{transfer\_id} correspondant à l'ID on-chain,
+  \item \texttt{from\_bank} et \texttt{to\_bank},
+  \item \texttt{amount},
+  \item \texttt{status} (pending / approved),
+  \item \texttt{approved\_at} et \texttt{created\_at}.
+\end{itemize}
+
+\paragraph{blacklist\_history}
+Cette table d'audit conserve :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{bank\_address},
+  \item \texttt{action} (blacklist ou remove),
+  \item \texttt{performed\_by},
+  \item \texttt{tx\_hash},
+  \item \texttt{created\_at}.
+\end{itemize}
+
+\paragraph{rate\_history}
+La table \texttt{rate\_history} conserve les fluctuations de taux :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{currency},
+  \item \texttt{rate},
+  \item \texttt{source},
+  \item \texttt{created\_at}.
+\end{itemize}
+
+\paragraph{rate\_alerts} et \texttt{rate\_alert\_history}
+Ces tables permettent de configurer des alertes de seuil sur EUR ou USD, et d'historiser chaque déclenchement.
+
+\subsection{Exemples de vues PostgreSQL}
+Le backend définit des vues SQL utilitaires pour les rapports :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{bank\_transaction\_volume} : volume envoyé par banque,
+  \item \texttt{currency\_stats} : statistiques par devise,
+  \item \texttt{latest\_transactions\_detailed} : historique enrichi avec les noms et pays.
+\end{itemize}
+Ces vues facilitent la génération de rapports sans complexifier les requêtes applicatives.
+
+\section{Sécurité et authentification}
+L'authentification repose sur JWT. Les mots de passe sont hachés avec bcrypt avant stockage. Le backend protège les endpoints critiques et valide les permissions métier avant tout appel blockchain.
+
+\section{Intégration blockchain}
+Le backend connecte un wallet de la Banque Centrale à un nœud Ethereum via WebSocket. Il utilise Ethers.js pour :
+\begin{itemize}[leftmargin=*,nosep]
+  \item appeler \texttt{registerBank()},
+  \item ajouter du solde via \texttt{addBalance()},
+  \item créer des transferts sur le contrat via \texttt{transfer()},
+  \item approuver des transferts via \texttt{approveTransfer()},
+  \item gérer la blacklist via \texttt{blacklistBank()} et \texttt{removeFromBlacklist()},
+  \item lire les taux et les statistiques on-chain.
+\end{itemize}
+Cette intégration permet au backend de garder une cohérence entre la base PostgreSQL et l'état blockchain.
+
+\section{Services métiers et automatisation}
+Le backend inclut des services spécialisés :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{exchange-rate.service.js} pour récupérer les taux de change depuis ExchangeRate-API, comparer les valeurs externes aux taux on-chain et synchroniser le contrat uniquement lorsque le taux a changé,
+  \item \texttt{email.service.js} pour envoyer des notifications de validation, d'approbation et d'alerte de taux,
+  \item un cron défini dans \texttt{backend/cron/exchange-rate.cron.js} qui lance la synchronisation des taux toutes les 24 heures et enregistre l'historique dans la table \texttt{rate\_history}.
+\end{itemize}
+Le backend gère un fallback vers des taux par défaut si l'API externe est indisponible, et il met à jour la base de données de suivi des taux pour assurer une traçabilité complète.
+
+\section{Traitement des événements blockchain}
+Le backend écoute des événements smart contract importants :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{PendingTransferCreated} : insertion dans la table \texttt{pending\_transfers},
+  \item \texttt{PendingTransferApproved} : mise à jour du statut du pending transfer et insertion finale dans \texttt{transactions},
+  \item \texttt{TransferExecuted} : historique des transactions.
+\end{itemize}
+Le backend maintient ainsi une synchronisation asynchrone entre l'état on-chain et l'état off-chain, en alimentant les tables \texttt{transactions}, \texttt{pending\_transfers} et la table \texttt{rate\_history} avec des données issues de la blockchain.
+
+\section{Gestion des erreurs et résilience}
+Le backend gère plusieurs classes d'erreurs :
+\begin{itemize}[leftmargin=*,nosep]
+  \item erreurs de validation des entrées,
+  \item erreurs PostgreSQL,
+  \item erreurs blockchain (reverts, timeouts),
+  \item erreurs d'email.
+\end{itemize}
+Chaque erreur est loggée et renvoyée de manière structurée pour faciliter le diagnostic.
+
+\section{Tests et validation}
+Le backend est vérifié par des tests manuels et automatiques, notamment :
+\begin{itemize}[leftmargin=*,nosep]
+  \item la création et l'enregistrement des banques,
+  \item l'ajout de solde,
+  \item la création de transferts et le passage en état \texttt{pending},
+  \item l'approbation des transferts,
+  \item la génération des KPI et l'historique des transactions.
+\end{itemize}
+
+\section{Conclusion du chapitre}
+Le backend est le point de convergence entre les actions utilisateur, la blockchain et les données métier. Il offre un orchestration fiable, une traçabilité des opérations et une interface REST adaptée au frontend Angular.
+
+\chapter{Sprint 4 --- Frontend}
+\section{Objectifs du sprint}
+Ce sprint vise à concevoir une interface utilisateur professionnelle, ergonomique et adaptée aux différents profils : employés de banque et responsables de la Banque Centrale.
+
+\section{Technologies utilisées}
+Les technologies retenues sont :
+\begin{itemize}[leftmargin=*,nosep]
+  \item Angular 21,
+  \item Bootstrap 5,
+  \item ng2-charts pour les graphiques,
+  \item jspdf et jspdf-autotable pour l'export PDF.
+\end{itemize}
+L'utilisation d'Angular 21 en mode standalone permet de réduire la complexité des modules et d'améliorer la rapidité de développement.
+
+\section{Organisation des composants}
+L'architecture du frontend se compose des principaux composants suivants :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{DashboardComponent},
+  \item \texttt{BanksComponent},
+  \item \texttt{TransfersComponent},
+  \item \texttt{PendingComponent},
+  \item \texttt{CreateTransferComponent},
+  \item \texttt{RatesComponent},
+  \item \texttt{FeesComponent},
+  \item \texttt{BlacklistComponent}.
+\end{itemize}
+Cette organisation permet une séparation claire des responsabilités et une meilleure réutilisation du code. Chaque composant correspond à un écran métier distinct et facilite les évolutions futures.
+
+\section{Parcours utilisateur}
+L'utilisateur commence par se connecter via une page dédiée. Ensuite, il peut accéder aux zones suivantes selon son rôle :
+\begin{itemize}[leftmargin=*,nosep]
+  \item consultation des banques et des soldes,
+  \item création et suivi des transferts,
+  \item validation des transferts en attente,
+  \item accès au tableau de bord.
+\end{itemize}
+La Banque Centrale dispose en plus des pages d'administration pour modifier les taux, les frais et la blacklist.
+
+\section{Navigation et sécurité}
+Les routes sont définies dans \texttt{src/app/app.routes.ts}. Des guards protègent l'accès :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{appAccessGuard} pour les utilisateurs authentifiés,
+  \item \texttt{centralBankGuard} pour la Banque Centrale,
+  \item \texttt{transferGuard} pour les opérations de transfert.
+\end{itemize}
+Cela garantit une navigation sécurisée et empêche l'accès aux fonctionnalités non autorisées.
+
+\section{Service de données}
+Le service \texttt{ApiService} centralise les appels au backend et implémente un cache local pour limiter les requêtes répétées. Il gère les données suivantes : banques, transferts, taux, statistiques et alertes. Cette approche garantit des temps de réponse plus rapides tout en maintenant des données actualisées.
+
+\section{Fonctionnement de l'application}
+L'application suit une architecture unidirectionnelle des données :
+\begin{enumerate}[leftmargin=*,nosep]
+  \item l'utilisateur déclenche une action dans l'interface,
+  \item le composant appelle un service Angular,
+  \item le service envoie une requête REST au backend,
+  \item le backend traite la requête, appelle le smart contract si nécessaire, et met à jour PostgreSQL,
+  \item la réponse est renvoyée au frontend,
+  \item le composant met à jour l'affichage.
+\end{enumerate}
+Cette organisation facilite la maintenance et le débogage.
+
+\section{Écrans et captures d'écran}
+L'application comprend plusieurs écrans clés :
+\begin{itemize}[leftmargin=*,nosep]
+  \item page de connexion,
+  \item tableau de bord des KPI,
+  \item gestion des banques,
+  \item création de transferts,
+  \item validation des transferts en attente,
+  \item administration des taux et de la blacklist.
+\end{itemize}
+Chaque écran est conçu pour être compréhensible rapidement et pour limiter les erreurs de saisie.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/screenshot-dashboard.png}
+  \caption{Exemple d'écran de tableau de bord de l'application}
+\end{figure}
+
+\section{Gestion des transferts}
+Les transferts sont créés via des formulaires guidés. Le système vérifie la validité des données, met à jour les taux en temps réel et propose un aperçu du montant converti avant validation. Si le transfert dépasse le seuil d'approbation, il bascule en état "pending" et doit être validé par la Banque Centrale.
+
+\section{Administration}
+Les pages d'administration permettent :
+\begin{itemize}[leftmargin=*,nosep]
+  \item la mise à jour des taux,
+  \item la modification des frais,
+  \item la gestion de la blacklist.
+\end{itemize}
+Ces fonctionnalités sont réservées aux rôles autorisés et sont accessibles uniquement via le guard \texttt{centralBankGuard}.
+
+\section{Expérience utilisateur}
+L'interface est conçue pour être claire et professionnelle. Les formulaires, tableaux et graphiques sont alignés avec une charte visuelle cohérente. Les messages d'erreur sont explicites, les validations utilisateur sont renforcées et les retours d'état sont affichés en temps réel pour guider l'utilisateur.
+
+\section{Tests utilisateur}
+Des tests d'utilisation ont permis de vérifier la fluidité du parcours : connexion, création de transfert, validation d'un transfert en attente, consultation des indicateurs. Ces tests ont permis d'ajuster l'ergonomie, les libellés et les confirmations visuelles pour les actions critiques.
+
+\section{Conclusion du chapitre}
+Le frontend rend la solution accessible et professionnelle. Il transforme la logique métier en une interface opérationnelle adaptée aux utilisateurs du système, tout en offrant des points de contrôle clairs pour la Banque Centrale.
+
+\chapter{Sprint 5 --- Fonctionnalités avancées}
+\section{Objectifs du sprint}
+Ce sprint vise à enrichir la plateforme avec des fonctionnalités avancées : export PDF, notifications, automatisation des taux, containerisation et documentation.
+
+\section{Export PDF}
+Le service \texttt{PdfService} génère des rapports PDF pour les transferts et les indicateurs. Cette fonctionnalité est utile pour partager des bilans avec les responsables et conserver des archives.
+
+\section{Notifications et alertes}
+Le backend utilise \texttt{nodemailer} pour envoyer des emails de notification. Les alertes concernent notamment :
+\begin{itemize}[leftmargin=*,nosep]
+  \item les transferts en attente,
+  \item les changements de taux importants,
+  \item les actions administratives.
+\end{itemize}
+Cela renforce la réactivité du système.
+
+\section{Cron job et synchronisation}
+Un cron job quotidien met à jour automatiquement les taux via l'API ExchangeRate-API. Le backend peut également récupérer les taux externes sans appliquer de mise à jour on-chain via l'endpoint \texttt{/api/rates/fetch}, ou forcer une mise à jour on-chain via \texttt{/api/rates/update}. Toutes les synchronisations de taux sont enregistrées dans la table \texttt{rate\_history} pour assurer une traçabilité des valeurs et des sources.
+
+\section{Dockerisation}
+La Dockerisation permet de déployer l'application de manière reproductible. Les conteneurs sont définis pour le frontend, le backend et la blockchain. Le projet inclut également des scripts npm pour faciliter le lancement et le nettoyage.
+
+\section{CI/CD}
+La préparation d'un pipeline CI/CD a été envisagée pour automatiser les builds, les tests et les déploiements. Ce pipeline inclut :
+\begin{itemize}[leftmargin=*,nosep]
+  \item compilation du frontend,
+  \item exécution des tests,
+  \item construction des images Docker,
+  \item validation des configurations.
+\end{itemize}
+
+\section{Gestion des risques et tests}
+Les tests couvrent plusieurs niveaux : smart contracts, backend et frontend. Des scénarios de validation ont été définis pour garantir la qualité de service.
+
+\section{Difficultés rencontrées}
+Les difficultés principales ont été :
+\begin{itemize}[leftmargin=*,nosep]
+  \item l'intégration entre backend et smart contract via WebSocket,
+  \item la gestion des conversions multi-devises,
+  \item la sécurisation des accès JWT,
+  \item la synchronisation des données entre frontend et backend.
+\end{itemize}
+Des solutions ont été apportées en renforçant la logique métier, en animant des revues de code et en produisant une documentation détaillée.
+
+\section{Conclusion du chapitre}
+Les fonctionnalités avancées apportent une dimension professionnelle à la plateforme. Elles améliorent la supervision, la traçabilité et la qualité de déploiement du projet.
+
+\chapter{Évaluation et perspectives}
+\section{Analyse critique}
+Le projet offre une solution complète et cohérente aux besoins identifiés. En revanche, il reste des améliorations possibles : optimisation des performances, extension des tests automatisés et ajout de nouvelles devises.
+
+\section{Bilan personnel}
+Ce stage a permis de renforcer les compétences techniques en développement full-stack, en architecture logicielle et en blockchain. Il a également confirmé l'intérêt pour les projets fintech et la gestion de solutions critiques.
+
+\section{Contributions} 
+Le projet apporte plusieurs contributions concrètes :
+\begin{itemize}[leftmargin=*,nosep]
+  \item une architecture modulaire pour un service de paiement,
+  \item un smart contract sécurisé pour la gestion des transferts,
+  \item un backend performant et robuste,
+  \item une interface utilisateur professionnelle,
+  \item une solution prête à être étendue.
+\end{itemize}
+
+\section{Perspectives d'évolution}
+Les pistes d'évolution identifiées sont :
+\begin{itemize}[leftmargin=*,nosep]
+  \item prise en charge de nouvelles devises,
+  \item intégration d'une authentification multi-facteur,
+  \item ajout d'un module de reporting avancé,
+  \item production d'un pipeline CI/CD complet,
+  \item automatisation des tests d'intégration.
+\end{itemize}
+
+\chapter{Conclusion générale}
+\section{Résumé des contributions}
+Le projet CrossBorder Payment a permis de construire une plateforme de paiement transfrontalier reposant sur trois couches harmonisées : frontend, backend et blockchain. Les sprints ont structuré le travail et ont permis d'atteindre un niveau professionnel.
+
+\section{Réponse à la problématique}
+La solution répond à la problématique en proposant un système sécurisé, conforme, traçable et automatisé pour les transferts interbancaires. Elle démontre la pertinence d'une architecture hybride combinant blockchain et services traditionnels.
+
+\section{Ouverture}
+Le projet est une base solide pour des développements futurs. Il peut être enrichi par des outils de surveillance avancés, des modules de conformité plus poussés et une extension vers des paiements multi-devises à l'échelle internationale.
+
+\cleardoublepage
+\chapter*{Bibliographie}
+\addcontentsline{toc}{chapter}{Bibliographie}
+\begin{itemize}[leftmargin=*,nosep]
+  \item V. Buterin, \textit{Ethereum Whitepaper}, 2013.
+  \item Angular Documentation, \texttt{https://angular.io}, consulté en 2026.
+  \item Node.js Documentation, \texttt{https://nodejs.org}, consulté en 2026.
+  \item PostgreSQL Documentation, \texttt{https://www.postgresql.org}, consulté en 2026.
+  \item Hardhat Documentation, \texttt{https://hardhat.org}, consulté en 2026.
+  \item Bootstrap Documentation, \texttt{https://getbootstrap.com}, consulté en 2026.
+\end{itemize}
+
+\appendix
+\chapter{Annexes}
+\section{Planning de travail}
+Le planning de travail est présenté sous forme de diagramme de Gantt en annexe. Il décrit les cinq sprints du projet : analyse, smart contracts, backend, frontend et fonctionnalités avancées.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/diagramme-gantt.png}
+  \caption{Diagramme de Gantt du projet}
+\end{figure}
+
+\section{Diagrammes UML}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/diagramme-classes.png}
+  \caption{Diagramme de classes du système}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/diagramme-cas-utilisation.png}
+  \caption{Diagramme de cas d'utilisation}
+\end{figure}
+
+\section{Plan de déploiement}
+Le déploiement s'appuie sur Docker et les fichiers \texttt{docker/frontend/Dockerfile}, \texttt{docker/backend/Dockerfile} et \texttt{docker/blockchain/Dockerfile}. Le projet est conçu pour une mise en production reproductible.
+
+\section{Extraits de code}
+Les extraits de code les plus significatifs sont fournis pour :
+\begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{CrossBorderPayment.sol},
+  \item \texttt{backend/server.js},
+  \item \texttt{src/app/services/api.service.ts}.
+\end{itemize}
+
+\section{Glossaire}
+\begin{description}[leftmargin=*,itemsep=0pt]
+  \item[AML] Anti-Money Laundering.
+  \item[API] Application Programming Interface.
+  \item[JWT] JSON Web Token.
+  \item[UI] User Interface.
+  \item[UX] User Experience.
+\end{description}
+
+\end{document}

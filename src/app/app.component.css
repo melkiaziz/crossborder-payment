@@ -1,0 +1,85 @@
+/* ============================================ */
+/* 🎨 GLOBAL STYLES */
+/* ============================================ */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ============================================ */
+/* 📱 MOBILE SIDEBAR */
+/* ============================================ */
+
+.mobile-sidebar {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 300px;
+  height: 100%;
+  background: white;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  transition: left 0.3s ease;
+  z-index: 1050;
+}
+
+.mobile-sidebar.open {
+  left: 0;
+}
+
+.sidebar-content {
+  padding: 20px;
+}
+
+.btn-close {
+  margin-bottom: 20px;
+}
+
+/* ============================================ */
+/* 📊 NAVBAR */
+/* ============================================ */
+
+.navbar {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-link {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  transform: translateY(-2px);
+}
+
+.nav-link.active {
+  font-weight: bold;
+  background: rgba(255,255,255,0.1);
+  border-radius: 5px;
+}
+
+/* ============================================ */
+/* 📋 FOOTER */
+/* ============================================ */
+
+.footer {
+  margin-top: auto;
+  border-top: 1px solid #dee2e6;
+}
+
+/* ============================================ */
+/* 📱 RESPONSIVE */
+/* ============================================ */
+
+@media (min-width: 992px) {
+  .mobile-sidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 991px) {
+  .navbar-collapse {
+    display: none !important;
+  }
+}

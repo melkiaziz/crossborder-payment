@@ -1,0 +1,106 @@
+<!-- ============================================ -->
+<!-- 🏦 NAVBAR -->
+<!-- ============================================ -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="/dashboard">
+      <strong>🏦 CrossBorder Payment</strong>
+    </a>
+    <button class="navbar-toggler" type="button" (click)="toggleSidebar()">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
+            📊 Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/banks" routerLinkActive="active">
+            🏦 Banks
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/transfers" routerLinkActive="active">
+            💸 Transfers
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/pending" routerLinkActive="active">
+            ⏳ Pending
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/history" routerLinkActive="active">
+            📜 History
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/settings" routerLinkActive="active">
+            ⚙️ Settings
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================================ -->
+<!-- 📱 MOBILE SIDEBAR -->
+<!-- ============================================ -->
+<div class="mobile-sidebar" [class.open]="sidebarOpen">
+  <div class="sidebar-content">
+    <button class="btn btn-close" (click)="toggleSidebar()"></button>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/dashboard" (click)="toggleSidebar()">
+          📊 Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/banks" (click)="toggleSidebar()">
+          🏦 Banks
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/transfers" (click)="toggleSidebar()">
+          💸 Transfers
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/pending" (click)="toggleSidebar()">
+          ⏳ Pending
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/history" (click)="toggleSidebar()">
+          📜 History
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/settings" (click)="toggleSidebar()">
+          ⚙️ Settings
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 📄 MAIN CONTENT -->
+<!-- ============================================ -->
+<div class="container-fluid mt-4">
+  <router-outlet></router-outlet>
+</div>
+
+<!-- ============================================ -->
+<!-- 📋 FOOTER -->
+<!-- ============================================ -->
+<footer class="footer mt-5 py-3 bg-light">
+  <div class="container text-center">
+    <span class="text-muted">
+      🏦 CrossBorder Payment System v2.0 | Built with Angular & Blockchain
+    </span>
+  </div>
+</footer>
